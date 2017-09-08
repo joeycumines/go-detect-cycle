@@ -5,16 +5,16 @@ package floyds
 import "errors"
 
 /*
-The Floyds struct is cycle detector using Floyd's tortoise and hare algorithm, it is designed to be used in
-recursive algorithms, but will work just as well in simple loops (it is very easy to implement in simple loops
-however). This implementation requires each step to be determined by the previous value, like `f(old) = new`. The
-`FloydsBranch` struct only requires a single value to be passed (where the main worker is iterating over the graph
-as the hare), however it is unlikely to be as performant, and does not provide the same level of memory efficiency,
-since it will, necessarily, store the previous values of the hare in a stack, for use by the tortoise.
-If you call any methods on something that was not constructed using `NewFloyds`, a panic will occur.
+The Detector struct is a cycle detector using Floyd's tortoise and hare algorithm. It is designed to be used in
+recursive algorithms, but will work just as well in simple loops (it is very easy to manually implement in simple
+loops, however). This implementation requires each step to be determined by the previous value, like `f(old) = new`.
+The `BranchingDetector` struct only requires a single value to be passed (where the main worker is iterating over the
+graph as the hare), however it is unlikely to be as performant, and does not provide the same level of memory
+efficiency, since it will, necessarily, store the previous values of the hare in a stack, for use by the tortoise.
+If you call any methods on something that was not constructed using either of the constructors, a panic will occur.
 
 It's worth mentioning that this implementation treats the current state as immutable, which results in safer code,
-at the expense of garbage collection. That aside, the memory cost of the structs themselves is constant, one of the
+at the expense of garbage collection. That aside, the memory cost of the Detector struct itself is O(1), one of the
 advantages of the algorithm used.
 
 I may implement the rest of the algorithm at a later date, which will probably include other types of cycle detection,
@@ -22,7 +22,7 @@ if it happens.
 
 Usage:
 
-	- Create with `NewFloyds`, providing start and next, optionally providing compare (defaults to equality).
+	- Create with `NewDetector`, providing start and next, optionally providing compare (defaults to equality).
 	- Increment with either `Hare` OR `Tortoise`, using `Ok` check for cycles, and passing down the new structs.
 	- If you are using `Tortoise` method, you will want to indicate done (out of bounds), by make it return false
 		from the next method, or you may not get the results you expect.
@@ -30,7 +30,8 @@ Usage:
 Branching Logic:
 
 If your algorithm has branching logic, where it forms a directed graph (and you only care about cycles from the
-current leaf to the root), please use the `FloydsBranch` struct, by calling it's constructor `NewFloydsBranch`.
+current leaf to the root), please use the `BranchingDetector` struct, by calling it's constructor
+`NewBranchingDetector`.
 
 Floyd's Tortoise and Hare algorithm, for reference. Only the first segment is currently implemented.
 
@@ -76,7 +77,7 @@ https://en.wikipedia.org/wiki/Cycle_detection
 
 		return lam, mu
  */
-type Floyds struct {
+type Detector struct {
 	next          func(v interface{}) (step interface{}, ok bool)
 	compare       func(tortoise, hare interface{}) bool
 	tortoise      interface{}
@@ -92,32 +93,32 @@ func compareEquality(a, b interface{}) bool {
 	return a == b
 }
 
-// NewFloyds is the constructor for the Floyds struct, and must provide the start step, and function to resolve the
-// next step (from the previous step each time), and may optionally include a custom comparison method.
-func NewFloyds(start interface{}, next func(v interface{}) (interface{}, bool), compare func(tortoise, hare interface{}) bool) Floyds {
+// NewDetector constructs a new Detector struct, and must provide the start step, and function to resolve the next
+// step (from the previous step each time), and may optionally include a custom comparison method.
+func NewDetector(start interface{}, next func(v interface{}) (interface{}, bool), compare func(tortoise, hare interface{}) bool) Detector {
 	if nil == next {
-		panic(errors.New("[NewFloyds] next must be non-nil"))
+		panic(errors.New("[NewDetector] next must be non-nil"))
 	}
 	if nil == compare {
 		compare = compareEquality
 	}
-	return Floyds{next, compare, start, start, true, false, 0, 0}
+	return Detector{next, compare, start, start, true, false, 0, 0}
 }
 
-func (f Floyds) validate() {
+func (f Detector) validate() {
 	if nil == f.next || nil == f.compare {
-		panic(errors.New("[Floyds.validate] nil property encountered, use the constructor NewFloyds"))
+		panic(errors.New("[Detector.validate] nil property encountered, use the constructor NewDetector"))
 	}
 }
 
 // Ok will return true only if there has been no cycle detected so far.
-func (f Floyds) Ok() bool {
+func (f Detector) Ok() bool {
 	f.validate()
 	return f.ok
 }
 
 // Checks if hare caught up to tortoise, which would indicate a cycle.
-func (f Floyds) check() bool {
+func (f Detector) check() bool {
 	f.validate()
 	if false == f.ok {
 		return false
@@ -125,29 +126,29 @@ func (f Floyds) check() bool {
 	return false == f.compare(f.tortoise, f.hare)
 }
 
-// SetNext returns a new Floyds that is the same as the receiver, but with the provided next function.
-func (f Floyds) SetNext(next func(v interface{}) (step interface{}, ok bool)) Floyds {
+// SetNext returns a new Detector that is the same as the receiver, but with the provided next function.
+func (f Detector) SetNext(next func(v interface{}) (step interface{}, ok bool)) Detector {
 	f.validate()
 	if nil == next {
-		panic(errors.New("[Floyds.SetNext] you cannot set a nil next"))
+		panic(errors.New("[Detector.SetNext] you cannot set a nil next"))
 	}
 	f.next = next
 	return f
 }
 
-// SetCompare returns a new Floyds that is the same as the receiver, but with the provided compare function.
-func (f Floyds) SetCompare(compare func(tortoise, hare interface{}) bool) Floyds {
+// SetCompare returns a new Detector that is the same as the receiver, but with the provided compare function.
+func (f Detector) SetCompare(compare func(tortoise, hare interface{}) bool) Detector {
 	f.validate()
 	if nil == compare {
-		panic(errors.New("[Floyds.SetCompare] you cannot set a nil compare"))
+		panic(errors.New("[Detector.SetCompare] you cannot set a nil compare"))
 	}
 	f.compare = compare
 	return f
 }
 
-// Hare returns a new Floyds with the hare moved forward one step (which must be provided), incrementing the tortoise
+// Hare returns a new Detector with the hare moved forward one step (which must be provided), incrementing the tortoise
 // one step if required.
-func (f Floyds) Hare(step interface{}) Floyds {
+func (f Detector) Hare(step interface{}) Detector {
 	f.validate()
 	if false == f.ok || true == f.done {
 		return f
@@ -177,9 +178,9 @@ func (f Floyds) Hare(step interface{}) Floyds {
 	return f
 }
 
-// Tortoise returns a new Floyds with the tortoise moved forward one step (which must be provided), incrementing the
+// Tortoise returns a new Detector with the tortoise moved forward one step (which must be provided), incrementing the
 // hare at least two steps, using next (it will always be two if Hare has not been called at all).
-func (f Floyds) Tortoise(step interface{}) Floyds {
+func (f Detector) Tortoise(step interface{}) Detector {
 	f.validate()
 	if false == f.ok || true == f.done {
 		return f
@@ -231,27 +232,28 @@ func (f Floyds) Tortoise(step interface{}) Floyds {
 }
 
 // HareCount gets the number of steps that hare has taken, since the start.
-func (f Floyds) HareCount() int {
+func (f Detector) HareCount() int {
 	f.validate()
 	return f.hareCount
 }
 
 // TortoiseCount gets the number of steps that tortoise has taken, since the start.
-func (f Floyds) TortoiseCount() int {
+func (f Detector) TortoiseCount() int {
 	f.validate()
 	return f.tortoiseCount
 }
 
 // Done will return true if any calls to next have returned a false ok value.
-func (f Floyds) Done() bool {
+func (f Detector) Done() bool {
 	f.validate()
 	return f.done
 }
 
-// FloydsBranch uses all the same logic as Floyds (which implements the tortoise and the hare), but with the addition
-// of the ability to support branching logic, at the cost of efficiency, and the sacrifice of the `Tortoise` method.
-type FloydsBranch struct {
-	f     Floyds
+// BranchingDetector uses the same logic as Detector (which implements the tortoise and the hare), but with the
+// addition of the ability to support branching logic, at the cost of something like O(n) memory usage, but can be
+// used with a simple stepper, that simply gets passed each step sequentially.
+type BranchingDetector struct {
+	f     Detector
 	next  []interface{}
 	clear func()
 }
@@ -261,11 +263,11 @@ func emptyNext(v interface{}) (interface{}, bool) {
 	return nil, false
 }
 
-// NewFloydsBranch constructs a new FloydsBranch with the given start value, and optionally a custom comparison func,
-// to determine if there was a cycle.
-func NewFloydsBranch(start interface{}, compare func(tortoise, hare interface{}) bool) FloydsBranch {
-	return FloydsBranch{
-		f: NewFloyds(
+// NewBranchingDetector constructs a new BranchingDetector with the given start value, and optionally a custom
+// comparison func, to determine if there was a cycle.
+func NewBranchingDetector(start interface{}, compare func(tortoise, hare interface{}) bool) BranchingDetector {
+	return BranchingDetector{
+		f: NewDetector(
 			start,
 			emptyNext,
 			compare,
@@ -273,10 +275,11 @@ func NewFloydsBranch(start interface{}, compare func(tortoise, hare interface{})
 	}
 }
 
-// Clear will ensure that any step references, to the step IMMEDIATELY PRECEDING the FloydsBranch f, will be cleared
-// from it's internal structure. This method should ideally be deferred on every level of recursion, since where the
-// recursive function (which received f as an argument) is the highest level that will need to access that step.
-func (f FloydsBranch) Clear() {
+// Clear will ensure that any step references, to the step IMMEDIATELY PRECEDING the BranchingDetector f, will be
+// cleared from it's internal structure. This method should ideally be deferred on every level of recursion, since
+// where the recursive function (which received f as an argument) is the highest level that will need to access that
+// step.
+func (f BranchingDetector) Clear() {
 	if nil == f.clear {
 		return
 	}
@@ -324,10 +327,10 @@ func genClear(next []interface{}, all bool) func() {
 	}
 }
 
-// The updateNext method will return a new FloydsBranch with the (potentially updated) next slice, from the receiver,
+// The updateNext method will return a new BranchingDetector with the (potentially updated) next slice, from the receiver,
 // as well as clearing the next method (which should be from the receiver).
 // It also clears the reference to the next slice from the receiver, since it's expected to go out of scope.
-func (u *nextUpdater) updateNext(f FloydsBranch) FloydsBranch {
+func (u *nextUpdater) updateNext(f BranchingDetector) BranchingDetector {
 	if nil == u {
 		return f
 	}
@@ -340,7 +343,7 @@ func (u *nextUpdater) updateNext(f FloydsBranch) FloydsBranch {
 // Hare takes a step for the hare, automatically taking a step for the tortoise if necessary, by storing the step
 // internally, for later use, you should ensure the return value's `Clear` method is called after it is no longer
 // necessary.
-func (f FloydsBranch) Hare(step interface{}) FloydsBranch {
+func (f BranchingDetector) Hare(step interface{}) BranchingDetector {
 	f.f.validate()
 	if false == f.f.ok || true == f.f.done {
 		return f
@@ -349,7 +352,7 @@ func (f FloydsBranch) Hare(step interface{}) FloydsBranch {
 	// At this point, updater.next has step as it's last value, and f.next might point to a different array.
 	updater.next = append(f.next, step)
 	f.f.next = updater.logNext
-	return updater.updateNext(FloydsBranch{
+	return updater.updateNext(BranchingDetector{
 		f: f.f.Hare(step),
 		// When clear is called, it will clear step from the array that holds the reference to it (which is potentially
 		// shared between multiple child branches, and, in the event that it was actually a COPY (the capacity had to
@@ -362,22 +365,22 @@ func (f FloydsBranch) Hare(step interface{}) FloydsBranch {
 }
 
 // Ok will return true only if there has been no cycle detected so far.
-func (f FloydsBranch) Ok() bool {
+func (f BranchingDetector) Ok() bool {
 	return f.f.Ok()
 }
 
 // Done is kept unexported - it's tested since it's part of the logic of the core implementation, but it doesn't
 // actually do anything useful in this case.
-func (f FloydsBranch) done() bool {
+func (f BranchingDetector) done() bool {
 	return f.f.Done()
 }
 
 // HareCount gets the number of steps that hare has taken, since the start.
-func (f FloydsBranch) HareCount() int {
+func (f BranchingDetector) HareCount() int {
 	return f.f.HareCount()
 }
 
 // TortoiseCount gets the number of steps that tortoise has taken, since the start.
-func (f FloydsBranch) TortoiseCount() int {
+func (f BranchingDetector) TortoiseCount() int {
 	return f.f.TortoiseCount()
 }

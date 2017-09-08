@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 )
 
-func TestFloyds_Hare1(t *testing.T) {
+func TestDetector_Hare1(t *testing.T) {
 	list := []string{"one", "two", "three", "one", "two", "three", "one", "two", "three", "one", "two", "three", "one", "two", "three"}
 	// create a cycle of list
 	next := func(v interface{}) (interface{}, bool) {
@@ -22,7 +22,7 @@ func TestFloyds_Hare1(t *testing.T) {
 		sA, sB := list[iA], list[iB]
 		return sA == sB
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 	log := []int{f.hare.(int)}
 	x := 0
 	for f.Ok() {
@@ -48,7 +48,7 @@ func TestFloyds_Hare1(t *testing.T) {
 	}
 }
 
-func TestFloyds_Hare2(t *testing.T) {
+func TestDetector_Hare2(t *testing.T) {
 	list := []int{0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5}
 	// create a cycle of list
 	next := func(v interface{}) (interface{}, bool) {
@@ -63,7 +63,7 @@ func TestFloyds_Hare2(t *testing.T) {
 		sA, sB := list[iA], list[iB]
 		return sA == sB
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 	log := []int{f.hare.(int)}
 	x := 0
 	for f.Ok() {
@@ -91,7 +91,7 @@ func TestFloyds_Hare2(t *testing.T) {
 	//t.Fatalf("%v", log)
 }
 
-func TestFloyds_Hare3(t *testing.T) {
+func TestDetector_Hare3(t *testing.T) {
 	list := []int{0, 1, 2, 3, 1, 2, 3, 2, 123, 0, 1, 2, 3, 1, 2, 3, 2, 123, 0, 1, 2, 3, 1, 2, 3, 2, 123, 0, 1, 2, 3, 1, 2, 3, 2, 123}
 	// create a cycle of list
 	next := func(v interface{}) (interface{}, bool) {
@@ -106,7 +106,7 @@ func TestFloyds_Hare3(t *testing.T) {
 		sA, sB := list[iA], list[iB]
 		return sA == sB
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 	log := []int{f.hare.(int)}
 	x := 0
 	for f.Ok() {
@@ -134,7 +134,7 @@ func TestFloyds_Hare3(t *testing.T) {
 	//t.Fatalf("%v", log)
 }
 
-func TestFloyds_Hare4_noCycle(t *testing.T) {
+func TestDetector_Hare4_noCycle(t *testing.T) {
 	list := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	// create a cycle of list
 	next := func(v interface{}) (interface{}, bool) {
@@ -149,7 +149,7 @@ func TestFloyds_Hare4_noCycle(t *testing.T) {
 		sA, sB := list[iA], list[iB]
 		return sA == sB
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 	log := []int{f.hare.(int)}
 	x := 0
 	for f.Ok() && x < len(list) {
@@ -197,7 +197,7 @@ func makeRange(min, max int) []int {
 	return a
 }
 
-func TestFloyds_Hare4_noCycleDone(t *testing.T) {
+func TestDetector_Hare4_noCycleDone(t *testing.T) {
 	hareList := makeRange(0, 50)
 	tortoiseList := makeRange(0, 10)
 	// create a cycle of hareList
@@ -217,7 +217,7 @@ func TestFloyds_Hare4_noCycleDone(t *testing.T) {
 		sT, sH := tortoiseList[iT], hareList[iHare]
 		return sT == sH
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 	log := []int{f.hare.(int)}
 	x := 0
 	for f.Ok() && !f.Done() {
@@ -268,11 +268,11 @@ func TestFloyds_Hare4_noCycleDone(t *testing.T) {
 	}
 }
 
-func TestFloyds_TortoiseCount(t *testing.T) {
+func TestDetector_TortoiseCount(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		return v.(int) + 1, true
 	}
-	f := NewFloyds(0, next, nil)
+	f := NewDetector(0, next, nil)
 	if 0 != f.TortoiseCount() {
 		t.Fatal()
 	}
@@ -282,11 +282,11 @@ func TestFloyds_TortoiseCount(t *testing.T) {
 	}
 }
 
-func TestFloyds_HareCount(t *testing.T) {
+func TestDetector_HareCount(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		return v.(int) + 1, true
 	}
-	f := NewFloyds(0, next, nil)
+	f := NewDetector(0, next, nil)
 	if 0 != f.HareCount() {
 		t.Fatal()
 	}
@@ -296,12 +296,12 @@ func TestFloyds_HareCount(t *testing.T) {
 	}
 }
 
-func TestFloyds_Hare_panic(t *testing.T) {
-	f := Floyds{}
+func TestDetector_Hare_panic(t *testing.T) {
+	f := Detector{}
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[Floyds.validate] nil property encountered, use the constructor NewFloyds" != err.Error() {
+				"[Detector.validate] nil property encountered, use the constructor NewDetector" != err.Error() {
 				t.Fatal()
 			}
 		}()
@@ -310,12 +310,12 @@ func TestFloyds_Hare_panic(t *testing.T) {
 	}()
 }
 
-func TestFloyds_Tortoise_panic(t *testing.T) {
-	f := Floyds{}
+func TestDetector_Tortoise_panic(t *testing.T) {
+	f := Detector{}
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[Floyds.validate] nil property encountered, use the constructor NewFloyds" != err.Error() {
+				"[Detector.validate] nil property encountered, use the constructor NewDetector" != err.Error() {
 				t.Fatal()
 			}
 		}()
@@ -324,12 +324,12 @@ func TestFloyds_Tortoise_panic(t *testing.T) {
 	}()
 }
 
-func TestFloyds_HareCount_panic(t *testing.T) {
-	f := Floyds{}
+func TestDetector_HareCount_panic(t *testing.T) {
+	f := Detector{}
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[Floyds.validate] nil property encountered, use the constructor NewFloyds" != err.Error() {
+				"[Detector.validate] nil property encountered, use the constructor NewDetector" != err.Error() {
 				t.Fatal()
 			}
 		}()
@@ -338,12 +338,12 @@ func TestFloyds_HareCount_panic(t *testing.T) {
 	}()
 }
 
-func TestFloyds_TortoiseCount_panic(t *testing.T) {
-	f := Floyds{}
+func TestDetector_TortoiseCount_panic(t *testing.T) {
+	f := Detector{}
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[Floyds.validate] nil property encountered, use the constructor NewFloyds" != err.Error() {
+				"[Detector.validate] nil property encountered, use the constructor NewDetector" != err.Error() {
 				t.Fatal()
 			}
 		}()
@@ -352,12 +352,12 @@ func TestFloyds_TortoiseCount_panic(t *testing.T) {
 	}()
 }
 
-func TestFloyds_Ok_panic(t *testing.T) {
-	f := Floyds{}
+func TestDetector_Ok_panic(t *testing.T) {
+	f := Detector{}
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[Floyds.validate] nil property encountered, use the constructor NewFloyds" != err.Error() {
+				"[Detector.validate] nil property encountered, use the constructor NewDetector" != err.Error() {
 				t.Fatal()
 			}
 		}()
@@ -366,12 +366,12 @@ func TestFloyds_Ok_panic(t *testing.T) {
 	}()
 }
 
-func TestFloyds_Done_panic(t *testing.T) {
-	f := Floyds{}
+func TestDetector_Done_panic(t *testing.T) {
+	f := Detector{}
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[Floyds.validate] nil property encountered, use the constructor NewFloyds" != err.Error() {
+				"[Detector.validate] nil property encountered, use the constructor NewDetector" != err.Error() {
 				t.Fatal()
 			}
 		}()
@@ -380,11 +380,11 @@ func TestFloyds_Done_panic(t *testing.T) {
 	}()
 }
 
-func TestFloyds_Done(t *testing.T) {
+func TestDetector_Done(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		return "next", false
 	}
-	f := NewFloyds(23, next, nil)
+	f := NewDetector(23, next, nil)
 	if true == f.Done() || true == f.done {
 		t.Fatal()
 	}
@@ -399,24 +399,24 @@ func TestFloyds_Done(t *testing.T) {
 	}
 }
 
-func TestNewFloyds_panic(t *testing.T) {
+func TestNewDetector_panic(t *testing.T) {
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[NewFloyds] next must be non-nil" != err.Error() {
+				"[NewDetector] next must be non-nil" != err.Error() {
 				t.Fatal()
 			}
 		}()
-		NewFloyds(nil, nil, nil)
+		NewDetector(nil, nil, nil)
 		t.Fatal()
 	}()
 }
 
-func TestNewFloyds(t *testing.T) {
+func TestNewDetector(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		return "next", true
 	}
-	f := NewFloyds(23, next, nil)
+	f := NewDetector(23, next, nil)
 	if nil == f.next || nil == f.compare {
 		t.Fatal()
 	}
@@ -432,7 +432,7 @@ func TestNewFloyds(t *testing.T) {
 	compare := func(a, b interface{}) bool {
 		return a == "left" && b == "right"
 	}
-	f = NewFloyds(23, next, compare)
+	f = NewDetector(23, next, compare)
 	if true == f.compare("right", "left") {
 		t.Fatal()
 	}
@@ -441,7 +441,7 @@ func TestNewFloyds(t *testing.T) {
 	}
 }
 
-func TestFloyds_check(t *testing.T) {
+func TestDetector_check(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		return "next", true
 	}
@@ -450,7 +450,7 @@ func TestFloyds_check(t *testing.T) {
 		compared = true
 		return false
 	}
-	f := NewFloyds(23, next, compare)
+	f := NewDetector(23, next, compare)
 	if false == f.check() {
 		t.Fatal()
 	}
@@ -463,7 +463,7 @@ func TestFloyds_check(t *testing.T) {
 	}
 }
 
-func TestFloyds_checkNoCompare(t *testing.T) {
+func TestDetector_checkNoCompare(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		return "next", true
 	}
@@ -471,14 +471,14 @@ func TestFloyds_checkNoCompare(t *testing.T) {
 		t.Fatal()
 		return false
 	}
-	f := NewFloyds(23, next, compare)
+	f := NewDetector(23, next, compare)
 	f.ok = false
 	if true == f.check() {
 		t.Fatal()
 	}
 }
 
-func TestFloyds_Hare_done(t *testing.T) {
+func TestDetector_Hare_done(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		t.Fatal()
 		return "next", true
@@ -487,7 +487,7 @@ func TestFloyds_Hare_done(t *testing.T) {
 		t.Fatal()
 		return false
 	}
-	f := NewFloyds(23, next, compare)
+	f := NewDetector(23, next, compare)
 	f.done = true
 	f = f.Hare(nil)
 	if false == f.done || false == f.ok {
@@ -495,7 +495,7 @@ func TestFloyds_Hare_done(t *testing.T) {
 	}
 }
 
-func TestFloyds_Tortoise_done(t *testing.T) {
+func TestDetector_Tortoise_done(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		t.Fatal()
 		return "next", true
@@ -504,7 +504,7 @@ func TestFloyds_Tortoise_done(t *testing.T) {
 		t.Fatal()
 		return false
 	}
-	f := NewFloyds(23, next, compare)
+	f := NewDetector(23, next, compare)
 	f.done = true
 	f = f.Tortoise(nil)
 	if false == f.done || false == f.ok {
@@ -512,7 +512,7 @@ func TestFloyds_Tortoise_done(t *testing.T) {
 	}
 }
 
-func TestFloyds_Hare_notOk(t *testing.T) {
+func TestDetector_Hare_notOk(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		t.Fatal()
 		return "next", true
@@ -521,7 +521,7 @@ func TestFloyds_Hare_notOk(t *testing.T) {
 		t.Fatal()
 		return false
 	}
-	f := NewFloyds(23, next, compare)
+	f := NewDetector(23, next, compare)
 	f.ok = false
 	f = f.Hare(nil)
 	if true == f.ok || true == f.done {
@@ -529,7 +529,7 @@ func TestFloyds_Hare_notOk(t *testing.T) {
 	}
 }
 
-func TestFloyds_Tortoise_notOk(t *testing.T) {
+func TestDetector_Tortoise_notOk(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		t.Fatal()
 		return "next", true
@@ -538,7 +538,7 @@ func TestFloyds_Tortoise_notOk(t *testing.T) {
 		t.Fatal()
 		return false
 	}
-	f := NewFloyds(23, next, compare)
+	f := NewDetector(23, next, compare)
 	f.ok = false
 	f = f.Tortoise(nil)
 	if true == f.ok || true == f.done {
@@ -546,7 +546,7 @@ func TestFloyds_Tortoise_notOk(t *testing.T) {
 	}
 }
 
-func TestFloyds_Tortoise_noCycle(t *testing.T) {
+func TestDetector_Tortoise_noCycle(t *testing.T) {
 	list := makeRange(0, 20)
 	// create a cycle of list
 	next := func(v interface{}) (interface{}, bool) {
@@ -565,7 +565,7 @@ func TestFloyds_Tortoise_noCycle(t *testing.T) {
 		sA, sB := list[iA], list[iB]
 		return sA == sB
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 	for f.Ok() && !f.Done() {
 		fOld := f
 		n, ok := next(f.tortoise)
@@ -597,7 +597,7 @@ func TestFloyds_Tortoise_noCycle(t *testing.T) {
 	}
 }
 
-func TestFloyds_Tortoise_noCycle_oddNumber(t *testing.T) {
+func TestDetector_Tortoise_noCycle_oddNumber(t *testing.T) {
 	list := makeRange(0, 21)
 	// create a cycle of list
 	next := func(v interface{}) (interface{}, bool) {
@@ -616,7 +616,7 @@ func TestFloyds_Tortoise_noCycle_oddNumber(t *testing.T) {
 		sA, sB := list[iA], list[iB]
 		return sA == sB
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 	for f.Ok() && !f.Done() {
 		fOld := f
 		n, ok := next(f.tortoise)
@@ -651,7 +651,7 @@ func TestFloyds_Tortoise_noCycle_oddNumber(t *testing.T) {
 	}
 }
 
-func TestFloyds_Tortoise(t *testing.T) {
+func TestDetector_Tortoise(t *testing.T) {
 	list := []int{1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3}
 	// create a cycle of list
 	next := func(v interface{}) (interface{}, bool) {
@@ -670,7 +670,7 @@ func TestFloyds_Tortoise(t *testing.T) {
 		sA, sB := list[iA], list[iB]
 		return sA == sB
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 	for f.Ok() && !f.Done() {
 		fOld := f
 		n, ok := next(f.tortoise)
@@ -699,7 +699,7 @@ func TestFloyds_Tortoise(t *testing.T) {
 	}
 }
 
-func TestFloyds_Tortoise_badLogic(t *testing.T) {
+func TestDetector_Tortoise_badLogic(t *testing.T) {
 	list := []int{0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3}
 	// create a cycle of list
 	next := func(v interface{}) (interface{}, bool) {
@@ -718,7 +718,7 @@ func TestFloyds_Tortoise_badLogic(t *testing.T) {
 		sA, sB := list[iA], list[iB]
 		return sA == sB
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 
 	// take a hare step
 	n, _ := next(f.hare)
@@ -753,7 +753,7 @@ func TestFloyds_Tortoise_badLogic(t *testing.T) {
 	}
 }
 
-func TestFloyds_Bad_noCycle(t *testing.T) {
+func TestDetector_Bad_noCycle(t *testing.T) {
 	for _, length := range makeRange(1, 100) {
 		list := []int{}
 		for x := 0; x < length; x++ {
@@ -775,7 +775,7 @@ func TestFloyds_Bad_noCycle(t *testing.T) {
 			sA, sB := list[iA], list[iB]
 			return sA == sB
 		}
-		f := NewFloyds(0, next, compare)
+		f := NewDetector(0, next, compare)
 		for f.Ok() && !f.Done() {
 			oldF := f
 			// take one hare
@@ -827,7 +827,7 @@ func TestFloyds_Bad_noCycle(t *testing.T) {
 	}
 }
 
-func TestFloyds_Bad_cycle(t *testing.T) {
+func TestDetector_Bad_cycle(t *testing.T) {
 	for _, length := range makeRange(1, 100) {
 		list := []int{}
 		for y := 0; y < 5; y++ {
@@ -851,7 +851,7 @@ func TestFloyds_Bad_cycle(t *testing.T) {
 			sA, sB := list[iA], list[iB]
 			return sA == sB
 		}
-		f := NewFloyds(0, next, compare)
+		f := NewDetector(0, next, compare)
 		for f.Ok() && !f.Done() {
 			oldF := f
 			// take one hare
@@ -892,14 +892,14 @@ func TestFloyds_Bad_cycle(t *testing.T) {
 	}
 }
 
-func TestFloyds_Tortoise_short(t *testing.T) {
+func TestDetector_Tortoise_short(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		return 0, true
 	}
 	compare := func(a, b interface{}) bool {
 		return true
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 	f = f.Tortoise(0)
 	if 0 != f.tortoise || 0 != f.hare || 1 != f.tortoiseCount || 2 != f.hareCount {
 		t.Fatalf("%v", f)
@@ -909,14 +909,14 @@ func TestFloyds_Tortoise_short(t *testing.T) {
 	}
 }
 
-func TestFloyds_hare_short(t *testing.T) {
+func TestDetector_hare_short(t *testing.T) {
 	next := func(v interface{}) (interface{}, bool) {
 		return 0, true
 	}
 	compare := func(a, b interface{}) bool {
 		return true
 	}
-	f := NewFloyds(0, next, compare)
+	f := NewDetector(0, next, compare)
 	f = f.Hare(0)
 	if 0 != f.tortoise || 0 != f.hare || 1 != f.tortoiseCount || 1 != f.hareCount {
 		t.Fatalf("%v", f)
@@ -940,8 +940,8 @@ func Test_emptyNext(t *testing.T) {
 	}
 }
 
-func TestNewFloydsBranch(t *testing.T) {
-	f := NewFloydsBranch(22, nil)
+func TestNewBranchingDetector(t *testing.T) {
+	f := NewBranchingDetector(22, nil)
 	if nil == f.f.compare || nil == f.f.next || false == f.f.ok || true == f.f.done || 0 != f.f.tortoiseCount || 0 != f.f.hareCount ||
 		22 != f.f.hare || 22 != f.f.tortoise || true == f.f.compare(1, 2) || false == f.f.compare(1, 1) ||
 		0 != len(f.next) {
@@ -949,8 +949,8 @@ func TestNewFloydsBranch(t *testing.T) {
 	}
 }
 
-func TestFloydsBranch_Done(t *testing.T) {
-	f := NewFloydsBranch(nil, nil)
+func TestBranchingDetector_Done(t *testing.T) {
+	f := NewBranchingDetector(nil, nil)
 	if true == f.done() {
 		t.Fatal()
 	}
@@ -960,8 +960,8 @@ func TestFloydsBranch_Done(t *testing.T) {
 	}
 }
 
-func TestFloydsBranch_Ok(t *testing.T) {
-	f := NewFloydsBranch(nil, nil)
+func TestBranchingDetector_Ok(t *testing.T) {
+	f := NewBranchingDetector(nil, nil)
 	if false == f.Ok() {
 		t.Fatal()
 	}
@@ -971,23 +971,23 @@ func TestFloydsBranch_Ok(t *testing.T) {
 	}
 }
 
-func TestFloydsBranch_HareCount(t *testing.T) {
-	f := NewFloydsBranch(nil, nil)
+func TestBranchingDetector_HareCount(t *testing.T) {
+	f := NewBranchingDetector(nil, nil)
 	f.f.hareCount = 999
 	if 999 != f.HareCount() {
 		t.Fatal()
 	}
 }
 
-func TestFloydsBranch_TortoiseCount(t *testing.T) {
-	f := NewFloydsBranch(nil, nil)
+func TestBranchingDetector_TortoiseCount(t *testing.T) {
+	f := NewBranchingDetector(nil, nil)
 	f.f.tortoiseCount = 999
 	if 999 != f.TortoiseCount() {
 		t.Fatal()
 	}
 }
 
-func TestFloydsBranch_Hare_noCycle(t *testing.T) {
+func TestBranchingDetector_Hare_noCycle(t *testing.T) {
 	input := map[int]map[int]map[int][]int{
 		1: {
 			2: {
@@ -1008,7 +1008,7 @@ func TestFloydsBranch_Hare_noCycle(t *testing.T) {
 		},
 	}
 
-	f := NewFloydsBranch(0, nil)
+	f := NewBranchingDetector(0, nil)
 
 	for x, xMap := range input {
 		f := f.Hare(x)
@@ -1036,7 +1036,7 @@ func TestFloydsBranch_Hare_noCycle(t *testing.T) {
 	}
 }
 
-func TestFloydsBranch_Hare_singleCycle(t *testing.T) {
+func TestBranchingDetector_Hare_singleCycle(t *testing.T) {
 	input := map[int]map[int]map[int][]int{
 		1: {
 			2: {
@@ -1065,7 +1065,7 @@ func TestFloydsBranch_Hare_singleCycle(t *testing.T) {
 		},
 	}
 
-	f := NewFloydsBranch(0, nil)
+	f := NewBranchingDetector(0, nil)
 
 	count := 0
 
@@ -1105,8 +1105,8 @@ func TestFloydsBranch_Hare_singleCycle(t *testing.T) {
 	}
 }
 
-func TestFloydsBranch_Hare_done(t *testing.T) {
-	f := NewFloydsBranch(22, nil)
+func TestBranchingDetector_Hare_done(t *testing.T) {
+	f := NewBranchingDetector(22, nil)
 	f.f.done = true
 	f = f.Hare("NO")
 	n, ok := f.f.next("wat")
@@ -1115,8 +1115,8 @@ func TestFloydsBranch_Hare_done(t *testing.T) {
 	}
 }
 
-func TestFloydsBranch_Hare_ok(t *testing.T) {
-	f := NewFloydsBranch(22, nil)
+func TestBranchingDetector_Hare_ok(t *testing.T) {
+	f := NewBranchingDetector(22, nil)
 	f.f.ok = true
 	f = f.Hare("NO")
 	n, ok := f.f.next("wat")
@@ -1125,12 +1125,12 @@ func TestFloydsBranch_Hare_ok(t *testing.T) {
 	}
 }
 
-func TestFloyds_SetCompare1(t *testing.T) {
-	f := Floyds{}
+func TestDetector_SetCompare1(t *testing.T) {
+	f := Detector{}
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[Floyds.validate] nil property encountered, use the constructor NewFloyds" != err.Error() {
+				"[Detector.validate] nil property encountered, use the constructor NewDetector" != err.Error() {
 				t.Fatal()
 			}
 		}()
@@ -1139,12 +1139,12 @@ func TestFloyds_SetCompare1(t *testing.T) {
 	}()
 }
 
-func TestFloyds_SetNext1(t *testing.T) {
-	f := Floyds{}
+func TestDetector_SetNext1(t *testing.T) {
+	f := Detector{}
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[Floyds.validate] nil property encountered, use the constructor NewFloyds" != err.Error() {
+				"[Detector.validate] nil property encountered, use the constructor NewDetector" != err.Error() {
 				t.Fatal()
 			}
 		}()
@@ -1153,12 +1153,12 @@ func TestFloyds_SetNext1(t *testing.T) {
 	}()
 }
 
-func TestFloyds_SetCompare2(t *testing.T) {
-	f := NewFloyds(1, emptyNext, nil)
+func TestDetector_SetCompare2(t *testing.T) {
+	f := NewDetector(1, emptyNext, nil)
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[Floyds.SetCompare] you cannot set a nil compare" != err.Error() {
+				"[Detector.SetCompare] you cannot set a nil compare" != err.Error() {
 				t.Fatal()
 			}
 		}()
@@ -1167,12 +1167,12 @@ func TestFloyds_SetCompare2(t *testing.T) {
 	}()
 }
 
-func TestFloyds_SetNext2(t *testing.T) {
-	f := NewFloyds(1, emptyNext, nil)
+func TestDetector_SetNext2(t *testing.T) {
+	f := NewDetector(1, emptyNext, nil)
 	func() {
 		defer func() {
 			if err, ok := recover().(error); false == ok || nil == err ||
-				"[Floyds.SetNext] you cannot set a nil next" != err.Error() {
+				"[Detector.SetNext] you cannot set a nil next" != err.Error() {
 				t.Fatal()
 			}
 		}()
@@ -1181,8 +1181,8 @@ func TestFloyds_SetNext2(t *testing.T) {
 	}()
 }
 
-func TestFloyds_SetNext(t *testing.T) {
-	f := NewFloyds(1, emptyNext, nil)
+func TestDetector_SetNext(t *testing.T) {
+	f := NewDetector(1, emptyNext, nil)
 	f = f.SetNext(func(a interface{}) (interface{}, bool) {
 		if 12 != a {
 			t.Fatal()
@@ -1198,8 +1198,8 @@ func TestFloyds_SetNext(t *testing.T) {
 	}
 }
 
-func TestFloyds_SetCompare(t *testing.T) {
-	f := NewFloyds(1, emptyNext, nil)
+func TestDetector_SetCompare(t *testing.T) {
+	f := NewDetector(1, emptyNext, nil)
 	f = f.SetCompare(func(a, b interface{}) bool {
 		if 1 != a || 2 != b {
 			t.Fatal()
@@ -1214,7 +1214,7 @@ func TestFloyds_SetCompare(t *testing.T) {
 	}
 }
 
-func TestFloydsBranch_branchingNext(t *testing.T) {
+func TestBranchingDetector_branchingNext(t *testing.T) {
 	input := map[int]map[int]map[int][]int{
 		1: {
 			2: {
@@ -1244,7 +1244,7 @@ func TestFloydsBranch_branchingNext(t *testing.T) {
 		},
 	}
 
-	f := NewFloydsBranch(0, nil)
+	f := NewBranchingDetector(0, nil)
 	f = f.Hare("1")
 	f = f.Hare("2")
 	if "1" != f.f.tortoise || "2" != f.f.hare {
@@ -1303,7 +1303,7 @@ func TestNextUpdater_logNext(t *testing.T) {
 }
 
 func TestNextUpdater_updateNext(t *testing.T) {
-	f := NewFloydsBranch(1, nil)
+	f := NewBranchingDetector(1, nil)
 	f.next = []interface{}{2, 3}
 	var u *nextUpdater = nil
 	f = u.updateNext(f)
@@ -1312,8 +1312,8 @@ func TestNextUpdater_updateNext(t *testing.T) {
 	}
 }
 
-func TestNewFloydsBranch_setsCompare(t *testing.T) {
-	f := NewFloydsBranch(1, func(tortoise, hare interface{}) bool {
+func TestNewBranchingDetector_setsCompare(t *testing.T) {
+	f := NewBranchingDetector(1, func(tortoise, hare interface{}) bool {
 		return true
 	})
 	f = f.Hare(2)
@@ -1380,7 +1380,7 @@ func generateCycleMap(countMap, countCycles, countLeaves int) map[string]interfa
 	return mapList[0]
 }
 
-func mapHasCycle(m map[string]interface{}, f FloydsBranch, callClear bool) (bool, func() bool) {
+func mapHasCycle(m map[string]interface{}, f BranchingDetector, callClear bool) (bool, func() bool) {
 	checkAllNil := func() bool {
 		for _, v := range f.next {
 			if nil == v {
@@ -1434,12 +1434,12 @@ func TestReallocationOfSliceChecking(t *testing.T) {
 	}
 }
 
-func TestNewFloydsBranch2(t *testing.T) {
+func TestNewBranchingDetector2(t *testing.T) {
 	rand.Seed(41212399)
 	// verify no cycles detected in ones without cycles
 	for x := 0; x < 10; x++ {
 		m := generateCycleMap(50, 0, 120)
-		if a, b := mapHasCycle(m, NewFloydsBranch(nil, nil), true); false != a || false == b() {
+		if a, b := mapHasCycle(m, NewBranchingDetector(nil, nil), true); false != a || false == b() {
 			s, _ := json.MarshalIndent(m, "", "    ")
 			t.Fatal(string(s))
 		}
@@ -1447,7 +1447,7 @@ func TestNewFloydsBranch2(t *testing.T) {
 	// test detecting cycles
 	for x := 0; x < 200; x++ {
 		m := generateCycleMap(99, 1, 120)
-		if a, b := mapHasCycle(m, NewFloydsBranch(nil, nil), true); true != a || false == b() {
+		if a, b := mapHasCycle(m, NewBranchingDetector(nil, nil), true); true != a || false == b() {
 			s, _ := json.MarshalIndent(m, "", "    ")
 			t.Fatal(string(s))
 		}
@@ -1455,7 +1455,7 @@ func TestNewFloydsBranch2(t *testing.T) {
 	// test detecting cycles, but without clearing the internal array
 	for x := 0; x < 10; x++ {
 		m := generateCycleMap(50, 0, 120)
-		if a, b := mapHasCycle(m, NewFloydsBranch(nil, nil), false); false != a || true == b() {
+		if a, b := mapHasCycle(m, NewBranchingDetector(nil, nil), false); false != a || true == b() {
 			s, _ := json.MarshalIndent(m, "", "    ")
 			t.Fatal(string(s))
 		}
@@ -1463,7 +1463,7 @@ func TestNewFloydsBranch2(t *testing.T) {
 	// test detecting cycles
 	for x := 0; x < 200; x++ {
 		m := generateCycleMap(99, 1, 120)
-		if a, b := mapHasCycle(m, NewFloydsBranch(nil, nil), false); true != a || true == b() {
+		if a, b := mapHasCycle(m, NewBranchingDetector(nil, nil), false); true != a || true == b() {
 			s, _ := json.MarshalIndent(m, "", "    ")
 			t.Fatal(string(s))
 		}
