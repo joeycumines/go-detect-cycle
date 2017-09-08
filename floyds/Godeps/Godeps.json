@@ -1,0 +1,6 @@
+{
+	"ImportPath": "github.com/joeycumines/go-detect-cycle/floyds",
+	"GoVersion": "go1.9",
+	"GodepVersion": "v79",
+	"Deps": []
+}
