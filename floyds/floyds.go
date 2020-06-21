@@ -1,5 +1,5 @@
 /*
-   Copyright 2017 Joseph Cumines
+   Copyright 2020 Joseph Cumines
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -12,13 +12,15 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
- */
+*/
 
 // Package floyds provides means of detecting cycles, currently it is specifically designed to be used within
 // recursive functions, and implements Floyd's Tortoise and Hare algorithm.
 package floyds
 
-import "errors"
+import (
+	"errors"
+)
 
 /*
 The Detector struct is a cycle detector using Floyd's tortoise and hare algorithm. It is designed to be used in
@@ -92,7 +94,7 @@ https://en.wikipedia.org/wiki/Cycle_detection
 			lam += 1
 
 		return lam, mu
- */
+*/
 type Detector struct {
 	next          func(v interface{}) (step interface{}, ok bool)
 	compare       func(tortoise, hare interface{}) bool
@@ -275,7 +277,7 @@ type BranchingDetector struct {
 }
 
 // The emptyNext function is a placeholder to avoid triggering a panic.
-func emptyNext(v interface{}) (interface{}, bool) {
+func emptyNext(interface{}) (interface{}, bool) {
 	return nil, false
 }
 

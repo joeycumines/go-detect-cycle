@@ -1,5 +1,5 @@
 /*
-   Copyright 2017 Joseph Cumines
+   Copyright 2020 Joseph Cumines
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -12,15 +12,15 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
- */
+*/
 
 package floyds
 
 import (
-	"testing"
-	"math/rand"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"math/rand"
+	"testing"
 )
 
 func TestDetector_Hare1(t *testing.T) {
@@ -1484,4 +1484,8 @@ func TestNewBranchingDetector2(t *testing.T) {
 			t.Fatal(string(s))
 		}
 	}
+}
+
+func TestBranchingDetector_Clear_nil(t *testing.T) {
+	(BranchingDetector{}).Clear()
 }
